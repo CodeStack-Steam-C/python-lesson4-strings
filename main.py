@@ -1,6 +1,6 @@
-controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
-    
-    dart = sprites.createProjectileFromSprite(img`
+def on_a_pressed():
+    global dart
+    dart = sprites.create_projectile_from_sprite(img("""
             . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
@@ -17,39 +17,44 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . .
-        `, spacePlane, 200, 0)
-})
-sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
-    
-    if (position == 0) {
+        """),
+        spacePlane,
+        200,
+        0)
+controller.A.on_event(ControllerButtonEvent.PRESSED, on_a_pressed)
+
+def on_on_overlap(sprite, otherSprite):
+    global position
+    if position == 0:
         spacePlane.say(word.slice(0, 3))
-    } else if (position == 1) {
+    elif position == 1:
         spacePlane.say(word.slice(3, 9))
-    } else if (position == 2) {
+    elif position == 2:
         spacePlane.say(word.slice(9, 14))
-    } else if (position == 3) {
+    elif position == 3:
         spacePlane.say(word.slice(14, 18))
-    }
-    
     position += 1
-    position %= 4
-    //  position can only be 0, 1, 2, 3
+    position %= 4 # position can only be 0, 1, 2, 3
     otherSprite.destroy(effects.fire, 500)
-    info.changeScoreBy(1)
+    info.change_score_by(1)
     pause(1000)
     spacePlane.say("")
-})
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap2(sprite: Sprite, otherSprite: Sprite) {
+sprites.on_overlap(SpriteKind.projectile, SpriteKind.enemy, on_on_overlap)
+
+def on_on_overlap2(sprite, otherSprite):
     otherSprite.destroy()
-    scene.cameraShake(4, 500)
-    info.changeLifeBy(-1)
-})
-let bogey = null
-let dart = null
-let position = 0
-let word = "You can't stop me!"
-word = word.toLowerCase()
-let spacePlane = sprites.create(img`
+    scene.camera_shake(4, 500)
+    info.change_life_by(-1)
+sprites.on_overlap(SpriteKind.player, SpriteKind.enemy, on_on_overlap2)
+
+bogey= None
+dart= None
+
+position = 0
+word = "You can't stop me!"
+word = word.to_lower_case()
+
+spacePlane = sprites.create(img("""
         ..ccc.........ffffff....
             ..f4cc.......fcc22ff....
             ..f44cc...fffccccff.....
@@ -66,13 +71,15 @@ let spacePlane = sprites.create(img`
             ...ffffffff2ccf.........
             .......ffff2cf..........
             ........fffff...........
-    `, SpriteKind.Player)
-controller.moveSprite(spacePlane)
-spacePlane.setStayInScreen(true)
-info.setLife(3)
-game.onUpdateInterval(1000, function on_update_interval() {
-    
-    bogey = sprites.create(img`
+    """),
+    SpriteKind.player)
+controller.move_sprite(spacePlane)
+spacePlane.set_stay_in_screen(True)
+info.set_life(3)
+
+def on_update_interval():
+    global bogey
+    bogey = sprites.create(img("""
             ...........fffffff...ccfff..........
                     ..........fbbbbbbbffcbbbbf..........
                     ..........fbb111bbbbbffbf...........
@@ -89,8 +96,9 @@ game.onUpdateInterval(1000, function on_update_interval() {
                     ............cc1111fbdbbfdddc...fbbf.
                     ..............cccfffbdbbfcc.....fbbf
                     ....................fffff........fff
-        `, SpriteKind.Enemy)
-    bogey.setVelocity(-100, 0)
-    bogey.setPosition(160, randint(5, 115))
-    bogey.setFlag(SpriteFlag.AutoDestroy, true)
-})
+        """),
+        SpriteKind.enemy)
+    bogey.set_velocity(-100, 0)
+    bogey.set_position(160, randint(5, 115))
+    bogey.set_flag(SpriteFlag.AUTO_DESTROY, True)
+game.on_update_interval(1000, on_update_interval)
